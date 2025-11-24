@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create vite:*)",
+      "Bash(npm install:*)",
+      "Bash(npx:*)",
+      "Bash(mklink:*)",
+      "Bash(npm run dev)",
+      "Bash(npm uninstall:*)",
+      "Bash(git init:*)",
+      "Bash(git remote add:*)",
+      "Bash(git branch:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
