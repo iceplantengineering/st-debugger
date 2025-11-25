@@ -6,7 +6,7 @@
   "main": "dist/server/index.js",
   "scripts": {
     "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
-    "server:dev": "npm run build:server && nodemon dist/server/index.js",
+    "server:dev": "nodemon --exec ts-node --project tsconfig.server.json src/server/index.ts",
     "client:dev": "cd src/client && npm run dev",
     "build": "npm run build:server && npm run build:client",
     "build:server": "tsc -p tsconfig.server.json",
@@ -66,5 +66,11 @@
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=8.0.0"
+  },
+  "ts-node": {
+    "esm": false,
+    "compilerOptions": {
+      "module": "commonjs"
+    }
   }
 }

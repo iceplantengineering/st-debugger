@@ -622,7 +622,7 @@ export class STParser {
     const extractFromNode = (node: ASTNode) => {
       if (node.type === 'FUNCTION_CALL' && node.name) {
         // Check if it's a user-defined function (not a built-in)
-        if (!ST_KEYWORDS.includes(node.name.toUpperCase())) {
+        if (!ST_KEYWORDS.includes(node.name.toUpperCase() as any)) {
           dependencies.add(node.name);
         }
       }

@@ -1,4 +1,4 @@
-import { Express } from 'express';
+import express from 'express';
 import projectRoutes from './projects';
 import fileRoutes from './files';
 import analysisRoutes from './analysis';
@@ -8,7 +8,7 @@ import exportRoutes from './export';
 import versionRoutes from './versions';
 import historyRoutes from './history';
 
-export const setupRoutes = (app: Express): void => {
+export const setupRoutes = (app: express.Application): void => {
   // API version prefix
   const apiPrefix = '/api';
 
@@ -23,7 +23,5 @@ export const setupRoutes = (app: Express): void => {
   app.use(`${apiPrefix}/history`, historyRoutes);
 
   // Demo routes (for development/testing)
-  if (process.env.NODE_ENV === 'development' || process.env.DEMO_MODE === 'true') {
-    app.use(`${apiPrefix}/demo`, import('./demo').then(m => m.default));
-  }
+  // Temporarily disabled - demo.ts file needs to be created
 };

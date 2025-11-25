@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Plus, Search, Filter, MoreVertical, Clock, AlertTriangle, CheckCircle, FolderOpen, Brain, Upload } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Plus, Search, Filter, MoreVertical, Clock, AlertTriangle, CheckCircle, FolderOpen, Brain, Upload, Trash2 } from 'lucide-react';
 
 interface Project {
   id: string;
@@ -12,42 +12,163 @@ interface Project {
 }
 
 const Dashboard: React.FC = () => {
-  // Mock data for demonstration
-  const [projects] = useState<Project[]>([
-    {
-      id: '1',
-      name: 'Motor Control System',
-      description: 'Main motor control and safety interlocks',
-      version: 'v1.2.0',
-      files: 12,
-      updatedAt: '2024-11-25T10:30:00Z',
-      score: 87
-    },
-    {
-      id: '2',
-      name: 'Safety Monitoring',
-      description: 'Emergency stop and safety monitoring logic',
-      version: 'v2.0.1',
-      files: 8,
-      updatedAt: '2024-11-24T15:45:00Z',
-      score: 92
-    },
-    {
-      id: '3',
-      name: 'Temperature Control',
-      description: 'Temperature regulation and alarm system',
-      version: 'v1.0.5',
-      files: 15,
-      updatedAt: '2024-11-23T09:20:00Z',
-      score: 78
-    }
-  ]);
+  // State for projects
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  // Load projects from API on component mount
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/api/projects');
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success) {
+            setProjects(result.data);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading projects:', error);
+        // For demo purposes, set default projects if API fails
+        setProjects([
+          {
+            id: '1',
+            name: 'Motor Control System',
+            description: 'Main motor control and safety interlocks',
+            version: 'v1.2.0',
+            files: 12,
+            updatedAt: '2024-11-25T10:30:00Z',
+            score: 87
+          },
+          {
+            id: '2',
+            name: 'Safety Monitoring',
+            description: 'Emergency stop and safety monitoring logic',
+            version: 'v2.0.1',
+            files: 8,
+            updatedAt: '2024-11-24T15:45:00Z',
+            score: 92
+          },
+          {
+            id: '3',
+            name: 'Temperature Control',
+            description: 'Temperature regulation and alarm system',
+            version: 'v1.0.5',
+            files: 15,
+            updatedAt: '2024-11-23T09:20:00Z',
+            score: 78
+          }
+        ]);
+      }
+    };
+
+    loadProjects();
+  }, []);
 
   const [searchTerm, setSearchTerm] = useState('');
 
   const formatDateTime = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleString();
+  };
+
+  const handleCreateProject = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/api/projects', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: `New Project ${new Date().toLocaleString()}`,
+          description: 'Created from frontend',
+          version: 'v1.0.0'
+        })
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          setProjects([...projects, result.data]);
+          alert('Project created successfully!');
+        } else {
+          alert('Failed to create project: ' + result.error);
+        }
+      } else {
+        alert('Failed to create project: Server error');
+      }
+    } catch (error) {
+      console.error('Error creating project:', error);
+      alert('Failed to create project: Network error');
+    }
+  };
+
+  const handleDeleteProject = async (projectId: string, projectName: string) => {
+    // 確認ダイアログ
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${projectName}"?\n\nThis action cannot be undone.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3001/api/projects/${projectId}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          setProjects(projects.filter(p => p.id !== projectId));
+          alert(`Project "${projectName}" deleted successfully!`);
+        } else {
+          alert('Failed to delete project: ' + result.error);
+        }
+      } else {
+        alert('Failed to delete project: Server error');
+      }
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      alert('Failed to delete project: Network error');
+    }
+  };
+
+  // Quick Actions handlers
+  const handleImportProject = () => {
+    // Create a simple file input element
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.st,.prg,.fnc,.fb,.txt';
+    input.multiple = true;
+
+    input.onchange = (e) => {
+      const files = e.target.files;
+      if (files && files.length > 0) {
+        alert(`Import functionality ready for ${files.length} file(s):\n${Array.from(files).map(f => f.name).join('\n')}\n\nFull import will be implemented with backend endpoints.`);
+      }
+    };
+
+    input.click();
+  };
+
+  const handleRunAIAnalysis = () => {
+    alert('🤖 AI Analysis Features:\n\n• Code quality analysis\n• Bug detection\n• Performance optimization\n• Security vulnerability scanning\n\nFull AI analysis will be implemented with OpenAI integration.');
+  };
+
+  const handleUploadRuntimeData = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv';
+
+    input.onchange = (e) => {
+      const files = e.target.files;
+      if (files && files.length > 0) {
+        alert(`Runtime data upload ready for ${files.length} CSV file(s):\n${Array.from(files).map(f => f.name).join('\n')}\n\nSupports:\n• Variable snapshots\n• Trace logs\n• Error logs`);
+      }
+    };
+
+    input.click();
   };
 
   const filteredProjects = projects.filter(project =>
@@ -88,18 +209,21 @@ const Dashboard: React.FC = () => {
                 Welcome to AI-ST Debugger Pro
               </p>
             </div>
-            <button style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              backgroundColor: '#2563eb',
-              color: 'white',
-              padding: '0.5rem 1rem',
-              borderRadius: '0.5rem',
-              border: 'none',
-              cursor: 'pointer',
-              transition: 'background-color 0.2s'
-            }}>
+            <button
+              onClick={handleCreateProject}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                backgroundColor: '#2563eb',
+                color: 'white',
+                padding: '0.5rem 1rem',
+                borderRadius: '0.5rem',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'background-color 0.2s'
+              }}
+            >
               <Plus size={16} />
               <span>New Project</span>
             </button>
@@ -426,16 +550,31 @@ const Dashboard: React.FC = () => {
                             </div>
                           </div>
                           <button
+                            onClick={() => handleDeleteProject(project.id, project.name)}
                             style={{
-                              padding: '0.25rem',
-                              color: '#9ca3af',
+                              padding: '0.25rem 0.5rem',
+                              color: '#dc2626',
                               backgroundColor: 'transparent',
-                              border: 'none',
-                              cursor: 'pointer'
+                              border: '1px solid #dc2626',
+                              borderRadius: '0.25rem',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.25rem',
+                              fontSize: '0.75rem'
                             }}
-                            title="More options"
+                            title="Delete project"
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.backgroundColor = '#dc2626';
+                              e.currentTarget.style.color = 'white';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.backgroundColor = 'transparent';
+                              e.currentTarget.style.color = '#dc2626';
+                            }}
                           >
-                            <MoreVertical size={16} />
+                            <Trash2 size={14} />
+                            <span>Delete</span>
                           </button>
                         </div>
                       </div>
@@ -464,51 +603,81 @@ const Dashboard: React.FC = () => {
                   Quick Actions
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <button style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    padding: '0.75rem 1rem',
-                    backgroundColor: '#eff6ff',
-                    color: '#1e40af',
-                    borderRadius: '0.5rem',
-                    border: 'none',
-                    cursor: 'pointer',
-                    width: '100%',
-                    justifyContent: 'flex-start'
-                  }}>
+                  <button
+                    onClick={handleImportProject}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem',
+                      padding: '0.75rem 1rem',
+                      backgroundColor: '#eff6ff',
+                      color: '#1e40af',
+                      borderRadius: '0.5rem',
+                      border: 'none',
+                      cursor: 'pointer',
+                      width: '100%',
+                      justifyContent: 'flex-start',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#dbeafe';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#eff6ff';
+                    }}
+                  >
                     <Plus size={20} />
                     <span style={{ fontWeight: '500' }}>Import Project</span>
                   </button>
-                  <button style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    padding: '0.75rem 1rem',
-                    backgroundColor: '#f0fdf4',
-                    color: '#14532d',
-                    borderRadius: '0.5rem',
-                    border: 'none',
-                    cursor: 'pointer',
-                    width: '100%',
-                    justifyContent: 'flex-start'
-                  }}>
+                  <button
+                    onClick={handleRunAIAnalysis}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem',
+                      padding: '0.75rem 1rem',
+                      backgroundColor: '#f0fdf4',
+                      color: '#14532d',
+                      borderRadius: '0.5rem',
+                      border: 'none',
+                      cursor: 'pointer',
+                      width: '100%',
+                      justifyContent: 'flex-start',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#dcfce7';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f0fdf4';
+                    }}
+                  >
                     <Brain size={20} />
                     <span style={{ fontWeight: '500' }}>Run AI Analysis</span>
                   </button>
-                  <button style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    padding: '0.75rem 1rem',
-                    backgroundColor: '#eff6ff',
-                    color: '#1e40af',
-                    borderRadius: '0.5rem',
-                    border: 'none',
-                    cursor: 'pointer',
-                    width: '100%',
-                    justifyContent: 'flex-start'
-                  }}>
+                  <button
+                    onClick={handleUploadRuntimeData}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem',
+                      padding: '0.75rem 1rem',
+                      backgroundColor: '#eff6ff',
+                      color: '#1e40af',
+                      borderRadius: '0.5rem',
+                      border: 'none',
+                      cursor: 'pointer',
+                      width: '100%',
+                      justifyContent: 'flex-start',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#dbeafe';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#eff6ff';
+                    }}
+                  >
                     <Upload size={20} />
                     <span style={{ fontWeight: '500' }}>Upload Runtime Data</span>
                   </button>

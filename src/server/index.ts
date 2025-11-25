@@ -3,7 +3,6 @@ import cors from 'cors';
 import helmet from 'helmet';
 import path from 'path';
 import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
 
 import { logger } from './utils/logger';
 import { errorHandler } from './middleware/errorHandler';
@@ -12,9 +11,6 @@ import { initializeDatabase } from './models/database';
 
 // Load environment variables
 dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 class Server {
   private app: express.Application;
@@ -64,7 +60,7 @@ class Server {
     });
 
     // Static file serving
-    this.app.use('/static', express.static(path.join(__dirname, '../../public')));
+    this.app.use('/static', express.static(path.join(process.cwd(), 'public')));
   }
 
   private setupRoutes(): void {
@@ -78,7 +74,7 @@ class Server {
     });
 
     // API routes
-    setupRoutes(this.app);
+    setupRoutes(this.app as any);
 
     // 404 handler
     this.app.use('*', (req, res) => {
