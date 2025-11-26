@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronRight, ChevronDown, File, Folder, Plus, Upload, MoreVertical } from 'lucide-react';
+import { ChevronRight, File, Folder, Plus, Upload, MoreVertical } from 'lucide-react';
 import { getPOUTypeIcon, getPOUTypeColor, formatFileSize, cn } from '../../lib/utils';
 
 interface FileExplorerProps {
@@ -139,7 +139,7 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ project, selectedFile, onFi
   };
 
   const fileTree = buildFileTree();
-  const [treeState, setTreeState] = useState(fileTree);
+  const treeState = fileTree;
 
   const toggleNode = (nodeId: string) => {
     setExpandedNodes((prev) => {

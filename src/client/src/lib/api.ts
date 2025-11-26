@@ -1,13 +1,18 @@
 import axios from 'axios';
-import {
+import type {
   Project,
   CodeAnalysisResult,
   AnalysisRequest,
   CodeIssue,
   FixSuggestion,
-  RuntimeDataQuery,
   ExportOptions
 } from '../shared/types';
+
+interface RuntimeDataQuery {
+  dataType?: string;
+  startTime?: Date;
+  endTime?: Date;
+}
 
 // API base configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
@@ -209,7 +214,7 @@ export class APIClient {
 
   async exportProject(id: string, options: ExportOptions) {
     const params = new URLSearchParams();
-    params.append('format', options.format);
+    if (options.format) params.append('format', options.format);
     if (options.includeSource) params.append('includeSource', 'true');
     if (options.includeMetadata) params.append('includeMetadata', 'true');
     if (options.includeDocumentation) params.append('includeDocumentation', 'true');

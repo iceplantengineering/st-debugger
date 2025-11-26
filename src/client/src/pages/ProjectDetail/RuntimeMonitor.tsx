@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Activity, Upload, Download, Play, Pause, AlertTriangle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
-import { formatDateTime, getRelativeTime, formatDuration } from '../../lib/utils';
+import { formatDateTime, getRelativeTime } from '../../lib/utils';
 
 interface RuntimeMonitorProps {
   project: any;
@@ -12,7 +12,7 @@ const RuntimeMonitor: React.FC<RuntimeMonitorProps> = ({ project }) => {
   const [isMonitoring, setIsMonitoring] = useState(false);
   const [selectedVariable, setSelectedVariable] = useState<string>('');
   const [timeRange, setTimeRange] = useState<'1h' | '6h' | '24h' | '7d'>('1h');
-  const [refreshInterval, setRefreshInterval] = useState<NodeJS.Timeout | null>(null);
+  const [refreshInterval, setRefreshInterval] = useState<ReturnType<typeof setInterval> | null>(null);
 
   // Get runtime data
   const { data: runtimeData, refetch } = useQuery({
@@ -72,6 +72,8 @@ const RuntimeMonitor: React.FC<RuntimeMonitorProps> = ({ project }) => {
     }
   };
 
+  // Sample data for demonstration (not used in current implementation)
+  /*
   const sampleVariableData = [
     { time: '10:00', motorSpeed: 1200, temperature: 25.5, pressure: 2.1 },
     { time: '10:05', motorSpeed: 1400, temperature: 27.2, pressure: 2.3 },
@@ -91,6 +93,7 @@ const RuntimeMonitor: React.FC<RuntimeMonitorProps> = ({ project }) => {
     { time: '10:25', cpu: 55, memory: 69, io: 30 },
     { time: '10:30', cpu: 50, memory: 66, io: 26 },
   ];
+  */
 
   const recentErrors = errorLogs?.errorLogs?.slice(0, 5) || [];
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Play, MessageSquare, Lightbulb, Zap, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
-import { getSeverityColor, getSeverityIcon, formatDateTime } from '../../lib/utils';
+import { getSeverityColor, getSeverityIcon, formatDateTime, cn } from '../../lib/utils';
 
 interface AIAnalysisPanelProps {
   project: any;
@@ -168,8 +168,8 @@ const AIAnalysisPanel: React.FC<AIAnalysisPanelProps> = ({ project, selectedFile
   };
 
   const issues = analysisResults?.issues || [];
-  const criticalIssues = issues.filter(i => i.severity === 'CRITICAL');
-  const warnings = issues.filter(i => i.severity === 'WARNING');
+  const criticalIssues = issues.filter((i: any) => i.severity === 'CRITICAL');
+  const warnings = issues.filter((i: any) => i.severity === 'WARNING');
 
   return (
     <div className="h-full flex flex-col bg-white">
@@ -190,12 +190,12 @@ const AIAnalysisPanel: React.FC<AIAnalysisPanelProps> = ({ project, selectedFile
 
           <button
             onClick={handleRunAnalysis}
-            disabled={analyzeMutation.isLoading}
+            disabled={analyzeMutation.isPending}
             className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
           >
             <Play className="w-4 h-4" />
             <span>
-              {analyzeMutation.isLoading ? 'Analyzing...' : 'Run Analysis'}
+              {analyzeMutation.isPending ? 'Analyzing...' : 'Run Analysis'}
             </span>
           </button>
         </div>
@@ -290,7 +290,7 @@ const AIAnalysisPanel: React.FC<AIAnalysisPanelProps> = ({ project, selectedFile
               </div>
             ) : (
               <div className="space-y-4">
-                {issues.map((issue, index) => (
+                {issues.map((issue: any, index: number) => (
                   <div
                     key={index}
                     className={cn(

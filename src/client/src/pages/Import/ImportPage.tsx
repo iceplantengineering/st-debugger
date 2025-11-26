@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Upload, FileText, Database, AlertTriangle, CheckCircle, Play } from 'lucide-react';
+import { ArrowLeft, Upload, FileText, Database, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import FileUpload from '../../components/FileUpload/FileUpload';
-import { formatFileSize, isValidFileExtension } from '../../lib/utils';
+import { isValidFileExtension } from '../../lib/utils';
 
 const ImportPage: React.FC = () => {
   const navigate = useNavigate();
@@ -208,16 +208,16 @@ const ImportPage: React.FC = () => {
                         {/* Import Button */}
                         <button
                           onClick={handleProjectImport}
-                          disabled={importProjectMutation.isLoading}
+                          disabled={importProjectMutation.isPending}
                           className="flex items-center space-x-2 w-full justify-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
                         >
-                          {importProjectMutation.isLoading ? (
+                          {importProjectMutation.isPending ? (
                             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                           ) : (
                             <Upload className="w-5 h-5" />
                           )}
                           <span>
-                            {importProjectMutation.isLoading
+                            {importProjectMutation.isPending
                               ? 'Importing...'
                               : `Import ${selectedFiles.length} File${selectedFiles.length > 1 ? 's' : ''}`}
                           </span>
@@ -304,16 +304,16 @@ const ImportPage: React.FC = () => {
                     {/* Import Button */}
                     <button
                       onClick={handleDataImport}
-                      disabled={!csvContent || !projects?.projects?.length || importDataMutation.isLoading}
+                      disabled={!csvContent || !projects?.projects?.length || importDataMutation.isPending}
                       className="flex items-center space-x-2 w-full justify-center px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50"
                     >
-                      {importDataMutation.isLoading ? (
+                      {importDataMutation.isPending ? (
                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                       ) : (
                         <Upload className="w-5 h-5" />
                       )}
                       <span>
-                        {importDataMutation.isLoading ? 'Importing...' : 'Import Data'}
+                        {importDataMutation.isPending ? 'Importing...' : 'Import Data'}
                       </span>
                     </button>
 

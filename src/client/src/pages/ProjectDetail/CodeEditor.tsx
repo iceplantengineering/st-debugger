@@ -1,9 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
 import Editor from '@monaco-editor/react';
-import { Play, Save, Settings, Search, Eye, GitBranch, AlertTriangle } from 'lucide-react';
+import { Play, Save, Settings, Search, AlertTriangle } from 'lucide-react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
-import { cn } from '../../lib/utils';
 
 interface CodeEditorProps {
   file: any;
@@ -11,7 +10,7 @@ interface CodeEditorProps {
   onFileUpdate: (file: any) => void;
 }
 
-const CodeEditor: React.FC<CodeEditorProps> = ({ file, project, onFileUpdate }) => {
+const CodeEditor: React.FC<CodeEditorProps> = ({ file, onFileUpdate }) => {
   const editorRef = useRef<any>(null);
   const [code, setCode] = useState(file?.content || '');
   const [isDirty, setIsDirty] = useState(false);
@@ -20,7 +19,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ file, project, onFileUpdate }) 
   const [searchResults, setSearchResults] = useState<any[]>([]);
 
   // Get file AST for analysis
-  const { data: astData } = useQuery({
+  useQuery({
     queryKey: ['file-ast', file?.id],
     queryFn: () => file?.id ? api.getFileAST(file.id) : null,
     enabled: !!file?.id,
@@ -193,7 +192,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ file, project, onFileUpdate }) 
               {/* Actions */}
               <button
                 onClick={handleAnalyze}
-                disabled={analyzeMutation.isLoading}
+                disabled={analyzeMutation.isPending}
                 className="flex items-center space-x-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50"
               >
                 <Play className="w-4 h-4" />
@@ -202,7 +201,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ file, project, onFileUpdate }) 
 
               <button
                 onClick={handleSave}
-                disabled={!isDirty || saveMutation.isLoading}
+                disabled={!isDirty || saveMutation.isPending}
                 className="flex items-center space-x-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
               >
                 <Save className="w-4 h-4" />
@@ -320,7 +319,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ file, project, onFileUpdate }) 
               editorRef.current = editor;
 
               // Configure ST language (basic highlighting)
-              editor.getModel()?.setLanguage('plaintext');
+              // Language setting not available in this version
             }}
           />
         </div>

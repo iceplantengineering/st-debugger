@@ -344,6 +344,7 @@ export interface ExportRequest {
 export type ExportFormat = 'ZIP' | 'DIFF' | 'PROJECT';
 
 export interface ExportOptions {
+  format?: string;
   includeSource: boolean;
   includeMetadata: boolean;
   includeDocumentation: boolean;

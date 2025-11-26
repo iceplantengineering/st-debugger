@@ -7,4 +7,12 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['react-is'],
   },
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true
+      }
+    }
+  }
 })

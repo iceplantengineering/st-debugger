@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo } from 'react';
 import {
   ReactFlow,
-  Node,
-  Edge,
+  type Node,
+  type Edge,
   addEdge,
   ConnectionLineType,
   Panel,
@@ -108,7 +108,7 @@ const nodeTypes = {
   custom: CustomNode,
 };
 
-const DependencyGraph: React.FC<DependencyGraphProps> = ({ project, files, className = '' }) => {
+const DependencyGraph: React.FC<DependencyGraphProps> = ({ files, className = '' }) => {
   // Generate nodes and edges from files data
   const { nodes: initialNodes, edges: initialEdges } = useMemo(() => {
     const nodes: Node[] = [];
@@ -116,7 +116,7 @@ const DependencyGraph: React.FC<DependencyGraphProps> = ({ project, files, class
     const nodeMap = new Map<string, DependencyNode>();
 
     // Create nodes from POU files
-    files.forEach((file, index) => {
+    files.forEach((file) => {
       if (file.ast && file.ast.pous) {
         file.ast.pous.forEach((pou: any, pouIndex: number) => {
           const nodeId = `${file.id}-${pou.name}`;
@@ -161,7 +161,7 @@ const DependencyGraph: React.FC<DependencyGraphProps> = ({ project, files, class
               x: col * 280 + 50,
               y: row * 200 + 50,
             },
-            data: node,
+            data: node as unknown as Record<string, unknown>,
           });
         });
       }
@@ -192,7 +192,7 @@ const DependencyGraph: React.FC<DependencyGraphProps> = ({ project, files, class
     return { nodes, edges };
   }, [files]);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [nodes, , onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   const onConnect = useCallback(
@@ -357,7 +357,7 @@ const DependencyGraph: React.FC<DependencyGraphProps> = ({ project, files, class
             </div>
             <div className="text-gray-600">
               Issues: <span className="font-medium text-red-600">
-                {displayNodes.reduce((sum, node) => sum + (node.data?.issues || 0), 0)}
+                {displayNodes.reduce((sum: number, node: any) => sum + ((node.data as any)?.issues || 0), 0)}
               </span>
             </div>
           </div>

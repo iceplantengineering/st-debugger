@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Filter, MoreVertical, Clock, AlertTriangle, CheckCircle, FolderOpen, Brain, Upload, Trash2 } from 'lucide-react';
+import { Plus, Search, Filter, Clock, AlertTriangle, CheckCircle, FolderOpen, Brain, Upload, Trash2 } from 'lucide-react';
 import ExportButton from '../../components/ExportButton/ExportButton';
 
 interface Project {
@@ -144,9 +144,9 @@ const Dashboard: React.FC = () => {
     input.multiple = true;
 
     input.onchange = (e) => {
-      const files = e.target.files;
+      const files = (e.target as HTMLInputElement).files;
       if (files && files.length > 0) {
-        alert(`Import functionality ready for ${files.length} file(s):\n${Array.from(files).map(f => f.name).join('\n')}\n\nFull import will be implemented with backend endpoints.`);
+        alert(`Import functionality ready for ${files.length} file(s):\n${Array.from(files).map((f: File) => f.name).join('\n')}\n\nFull import will be implemented with backend endpoints.`);
       }
     };
 
@@ -163,9 +163,9 @@ const Dashboard: React.FC = () => {
     input.accept = '.csv';
 
     input.onchange = (e) => {
-      const files = e.target.files;
+      const files = (e.target as HTMLInputElement).files;
       if (files && files.length > 0) {
-        alert(`Runtime data upload ready for ${files.length} CSV file(s):\n${Array.from(files).map(f => f.name).join('\n')}\n\nSupports:\n• Variable snapshots\n• Trace logs\n• Error logs`);
+        alert(`Runtime data upload ready for ${files.length} CSV file(s):\n${Array.from(files).map((f: File) => f.name).join('\n')}\n\nSupports:\n• Variable snapshots\n• Trace logs\n• Error logs`);
       }
     };
 
