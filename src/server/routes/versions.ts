@@ -6,10 +6,11 @@ const router = Router();
 const versionController = new VersionController();
 
 // Version management endpoints
-router.get('/projects/:id', asyncHandler(versionController.getProjectVersions.bind(versionController)));
-router.post('/projects/:id', asyncHandler(versionController.createVersion.bind(versionController)));
-router.get('/:versionId', asyncHandler(versionController.getVersion.bind(versionController)));
-router.get('/:versionId/compare/:otherVersionId', asyncHandler(versionController.compareVersions.bind(versionController)));
-router.post('/:versionId/checkout', asyncHandler(versionController.checkoutVersion.bind(versionController)));
+router.get('/project/:projectId', asyncHandler(versionController.getProjectVersions.bind(versionController)));
+router.post('/project/:projectId', asyncHandler(versionController.createVersion.bind(versionController)));
+router.get('/:id', asyncHandler(versionController.getVersion.bind(versionController)));
+router.put('/:id', asyncHandler(versionController.updateVersion.bind(versionController)));
+router.delete('/:id', asyncHandler(versionController.deleteVersion.bind(versionController)));
+router.post('/:id/restore', asyncHandler(versionController.restoreVersion.bind(versionController)));
 
 export default router;

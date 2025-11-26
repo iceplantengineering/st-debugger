@@ -10,25 +10,25 @@ export class AIController {
     this.aiService = new AIAnalysisService();
   }
 
-  // POST /api/ai/analyze-code
+  // POST /api/ai/analyze
   analyzeCode = async (req: Request, res: Response): Promise<void> => {
-    const { code, options } = req.body;
+    const { projectId, code, options } = req.body;
 
-    if (!code || typeof code !== 'string') {
-      throw createError('Code is required', 400);
+    if (!projectId || !code) {
+      throw createError('Project ID and code are required', 400);
     }
 
     try {
-      const analysis = await this.aiService.analyzeWithAI({
-        id: 'temp',
-        name: 'Temp Analysis',
+      const analysisResult = await this.aiService.analyzeWithAI({
+        id: projectId,
+        name: 'Analysis Request',
         description: '',
         version: '1.0.0',
         createdAt: new Date(),
         updatedAt: new Date(),
         files: [{
-          id: 'temp-file',
-          name: 'Temp',
+          id: 'temp',
+          name: 'temp',
           type: 'PROGRAM',
           filePath: '',
           content: code,
@@ -37,67 +37,96 @@ export class AIController {
           dependencies: [],
           instances: [],
           version: '1.0.0',
-          lastModified: new Date()
+          lastModified: new Date(),
         }],
         dependencies: { nodes: [], edges: [] },
-        variables: {}
-      }, options || {});
+        variables: {},
+      }, {
+        projectId,
+        options: options || {
+          includeRuntimeData: false,
+          severityLevel: ['CRITICAL', 'ERROR', 'WARNING', 'INFO'],
+          issueTypes: ['SYNTAX_ERROR', 'RUNTIME_ERROR', 'LOGIC_ERROR', 'PERFORMANCE_ISSUE', 'STYLE_VIOLATION', 'SAFETY_CONCERN'],
+          includeSuggestions: true,
+        },
+      });
 
       const response = {
         success: true,
-        data: analysis,
-        message: 'Code analysis completed'
+        data: analysisResult,
+        message: 'AI analysis completed successfully',
       };
 
       res.json(response);
     } catch (error) {
-      logger.error('AI code analysis failed:', error);
+      logger.error('AI analysis failed:', error);
       throw createError('AI analysis failed', 500);
     }
   };
 
-  // POST /api/ai/generate-fixes
-  generateFixes = async (req: Request, res: Response): Promise<void> => {
-    const { issue, pou } = req.body;
+  // POST /api/ai/fix-suggestions
+  getFixSuggestions = async (req: Request, res: Response): Promise<void> => {
+    const { issue, code } = req.body;
 
-    if (!issue || !pou) {
-      throw createError('Issue and POU data are required', 400);
+    if (!issue || !code) {
+      throw createError('Issue and code are required', 400);
     }
 
     try {
-      const fixes = await this.aiService.generateFixSuggestions(issue, pou);
+      const suggestions = await this.aiService.generateFixSuggestions(issue, {
+        id: 'temp',
+        name: 'temp',
+        type: 'PROGRAM',
+        filePath: '',
+        content: code,
+        ast: { type: 'PROGRAM', children: [], lineNumber: 1, columnNumber: 1, scope: 'global' },
+        variables: [],
+        dependencies: [],
+        instances: [],
+        version: '1.0.0',
+        lastModified: new Date(),
+      });
 
       const response = {
         success: true,
-        data: fixes,
-        message: 'Fix suggestions generated'
+        data: suggestions,
+        message: 'Fix suggestions generated successfully',
       };
 
       res.json(response);
     } catch (error) {
-      logger.error('Fix generation failed:', error);
-      throw createError('Fix generation failed', 500);
+      logger.error('Fix suggestion generation failed:', error);
+      throw createError('Fix suggestion generation failed', 500);
     }
   };
 
-  // POST /api/ai/optimize-code
+  // POST /api/ai/optimize
   optimizeCode = async (req: Request, res: Response): Promise<void> => {
-    const { pou, optimizationGoals } = req.body;
+    const { code, optimizationGoals } = req.body;
 
-    if (!pou) {
-      throw createError('POU data is required', 400);
+    if (!code) {
+      throw createError('Code is required', 400);
     }
 
     try {
-      const optimized = await this.aiService.generateOptimizedCode(
-        pou,
-        optimizationGoals || ['performance', 'readability']
-      );
+      const optimizedCode = await this.aiService.generateOptimizedCode({
+        id: 'temp',
+        name: 'temp',
+        type: 'PROGRAM',
+        filePath: '',
+        content: code,
+        ast: { type: 'PROGRAM', children: [], lineNumber: 1, columnNumber: 1, scope: 'global' },
+        variables: [],
+        dependencies: [],
+        instances: [],
+        version: '1.0.0',
+        lastModified: new Date(),
+      }, optimizationGoals || ['performance', 'readability']);
 
       const response = {
         success: true,
-        data: optimized,
-        message: 'Code optimization completed'
+        data: optimizedCode,
+        message: 'Code optimization completed successfully',
       };
 
       res.json(response);
@@ -109,30 +138,42 @@ export class AIController {
 
   // POST /api/ai/generate-tests
   generateTests = async (req: Request, res: Response): Promise<void> => {
-    const { pou } = req.body;
+    const { code } = req.body;
 
-    if (!pou) {
-      throw createError('POU data is required', 400);
+    if (!code) {
+      throw createError('Code is required', 400);
     }
 
     try {
-      const testCases = await this.aiService.generateTestCases(pou);
+      const testCases = await this.aiService.generateTestCases({
+        id: 'temp',
+        name: 'temp',
+        type: 'PROGRAM',
+        filePath: '',
+        content: code,
+        ast: { type: 'PROGRAM', children: [], lineNumber: 1, columnNumber: 1, scope: 'global' },
+        variables: [],
+        dependencies: [],
+        instances: [],
+        version: '1.0.0',
+        lastModified: new Date(),
+      });
 
       const response = {
         success: true,
         data: testCases,
-        message: 'Test cases generated'
+        message: 'Test cases generated successfully',
       };
 
       res.json(response);
     } catch (error) {
-      logger.error('Test generation failed:', error);
-      throw createError('Test generation failed', 500);
+      logger.error('Test case generation failed:', error);
+      throw createError('Test case generation failed', 500);
     }
   };
 
   // POST /api/ai/chat
-  chat = async (req: Request, res: Response): Promise<void> => {
+  chatWithAI = async (req: Request, res: Response): Promise<void> => {
     const { message, context } = req.body;
 
     if (!message) {
@@ -140,19 +181,18 @@ export class AIController {
     }
 
     try {
-      // Simple chat response - in production, you'd integrate with a chat AI service
+      // Mock chat response for now
       const chatResponse = {
-        message: 'This is a mock chat response. In production, this would integrate with an AI chat service.',
-        timestamp: new Date().toISOString()
-      };
-
-      const response = {
         success: true,
-        data: chatResponse,
-        message: 'Chat response generated'
+        data: {
+          response: `AI Response to: ${message}`,
+          suggestions: [],
+          context: context || {},
+        },
+        message: 'Chat response generated successfully',
       };
 
-      res.json(response);
+      res.json(chatResponse);
     } catch (error) {
       logger.error('AI chat failed:', error);
       throw createError('AI chat failed', 500);

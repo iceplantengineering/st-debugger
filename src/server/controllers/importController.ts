@@ -3,181 +3,131 @@ import { createError } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
 
 export class ImportController {
-  // POST /api/import/variables
-  importVariableSnapshots = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const { projectId, csvContent, options } = req.body;
+  // POST /api/import/files
+  importFiles = async (req: Request, res: Response): Promise<void> => {
+    const { projectId, files, options } = req.body;
 
-      if (!csvContent) {
-        throw createError('CSV content is required', 400);
-      }
-
-      // Mock CSV processing
-      const mockSnapshots = [
-        {
-          timestamp: new Date('2024-01-20T10:30:00Z'),
-          variables: [
-            { name: 'motorSpeed', value: 1500, dataType: 'DINT', address: 'D100', quality: 'GOOD' },
-            { name: 'temperature', value: 45.2, dataType: 'REAL', address: 'D200', quality: 'GOOD' }
-          ]
-        }
-      ];
-
-      const response = {
-        success: true,
-        data: {
-          importedCount: mockSnapshots.length,
-          snapshots: mockSnapshots,
-          validation: {
-            isValid: true,
-            errors: [],
-            warnings: []
-          }
-        },
-        message: 'Variable snapshots imported successfully'
-      };
-
-      res.json(response);
-    } catch (error) {
-      logger.error('Variable snapshot import failed:', error);
-      throw createError('Import failed', 500);
+    if (!projectId || !files || !Array.isArray(files)) {
+      throw createError('Project ID and files array are required', 400);
     }
-  };
 
-  // POST /api/import/traces
-  importTraceLogs = async (req: Request, res: Response): Promise<void> => {
     try {
-      const { projectId, csvContent, options } = req.body;
-
-      if (!csvContent) {
-        throw createError('CSV content is required', 400);
-      }
-
-      // Mock trace log processing
-      const mockTraceLogs = [
-        {
-          timestamp: new Date('2024-01-20T10:30:01Z'),
-          blockName: 'MotorControl',
-          lineNumber: 15,
-          executionTime: 2.5,
-          variablesChanged: [
-            { name: 'motorSpeed', oldValue: 1450, newValue: 1500 }
-          ],
-          triggerEvent: 'PERIODIC_SCAN'
-        }
-      ];
+      // Mock implementation - would parse and store files
+      const importedFiles = files.map((file: any, index: number) => ({
+        id: `imported-${Date.now()}-${index}`,
+        name: file.name || `File${index + 1}`,
+        type: file.type || 'PROGRAM',
+        content: file.content || '',
+        size: file.size || 0,
+        importedAt: new Date(),
+        status: 'imported'
+      }));
 
       const response = {
         success: true,
         data: {
-          importedCount: mockTraceLogs.length,
-          traceLogs: mockTraceLogs,
-          validation: {
-            isValid: true,
-            errors: [],
-            warnings: []
-          }
+          importedFiles,
+          count: importedFiles.length,
+          projectId
         },
-        message: 'Trace logs imported successfully'
+        message: `${importedFiles.length} files imported successfully`,
       };
 
+      logger.info(`Imported ${importedFiles.length} files to project ${projectId}`);
       res.json(response);
     } catch (error) {
-      logger.error('Trace log import failed:', error);
-      throw createError('Import failed', 500);
-    }
-  };
-
-  // POST /api/import/errors
-  importErrorLogs = async (req: Request, res: Response): Promise<void> => {
-    try {
-      const { projectId, csvContent, options } = req.body;
-
-      if (!csvContent) {
-        throw createError('CSV content is required', 400);
-      }
-
-      // Mock error log processing
-      const mockErrorLogs = [
-        {
-          id: 'error-001',
-          timestamp: new Date('2024-01-20T09:15:30Z'),
-          errorNumber: 1002,
-          message: 'Motor temperature exceeded safe limit',
-          severity: 'ERROR',
-          blockName: 'MotorSafety',
-          lineNumber: 25,
-          details: { temperature: 87.5, threshold: 85.0 }
-        }
-      ];
-
-      const response = {
-        success: true,
-        data: {
-          importedCount: mockErrorLogs.length,
-          errorLogs: mockErrorLogs,
-          validation: {
-            isValid: true,
-            errors: [],
-            warnings: []
-          }
-        },
-        message: 'Error logs imported successfully'
-      };
-
-      res.json(response);
-    } catch (error) {
-      logger.error('Error log import failed:', error);
-      throw createError('Import failed', 500);
+      logger.error('File import failed:', error);
+      throw createError('File import failed', 500);
     }
   };
 
   // POST /api/import/project
   importProject = async (req: Request, res: Response): Promise<void> => {
+    const { projectName, files, options } = req.body;
+
+    if (!projectName || !files) {
+      throw createError('Project name and files are required', 400);
+    }
+
     try {
-      const { files, options } = req.body;
-
-      if (!files || !Array.isArray(files)) {
-        throw createError('Files array is required', 400);
-      }
-
-      // Mock project import
-      const mockProject = {
-        id: 'imported-project-' + Date.now(),
-        name: options?.projectName || 'Imported Project',
-        description: options?.description || 'Project imported from files',
+      // Mock implementation - would create new project with files
+      const newProject = {
+        id: `project-${Date.now()}`,
+        name: projectName,
+        description: `Imported project with ${files.length} files`,
         version: '1.0.0',
-        files: files.map((file: any, index: number) => ({
-          id: `file-${index}`,
-          name: file.name,
-          type: 'PROGRAM', // Would be detected from content
-          content: file.content,
-          variables: [],
-          dependencies: [],
-          instances: []
-        })),
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        files: files.map((file: any, index: number) => ({
+          id: `file-${Date.now()}-${index}`,
+          name: file.name || `File${index + 1}`,
+          type: file.type || 'PROGRAM',
+          content: file.content || '',
+          importedAt: new Date()
+        })),
+        dependencies: { nodes: [], edges: [] },
+        variables: {}
       };
 
       const response = {
         success: true,
-        data: {
-          project: mockProject,
-          importSummary: {
-            totalFiles: files.length,
-            successfulImports: files.length,
-            skippedFiles: 0,
-            errors: []
-          }
-        },
-        message: 'Project imported successfully'
+        data: newProject,
+        message: 'Project imported successfully',
       };
 
-      res.status(201).json(response);
+      logger.info(`Imported project: ${projectName}`);
+      res.json(response);
     } catch (error) {
       logger.error('Project import failed:', error);
-      throw createError('Import failed', 500);
+      throw createError('Project import failed', 500);
+    }
+  };
+
+  // GET /api/import/templates
+  getImportTemplates = async (req: Request, res: Response): Promise<void> => {
+    try {
+      // Mock implementation - return available import templates
+      const templates = [
+        {
+          id: 'gx-works3',
+          name: 'GX Works3 Project',
+          description: 'Import from Mitsubishi GX Works3 project files',
+          supportedExtensions: ['.prj', '.pmc', '.pou'],
+          icon: 'gx-works'
+        },
+        {
+          id: 'siemens-tia',
+          name: 'Siemens TIA Portal',
+          description: 'Import from Siemens TIA Portal project',
+          supportedExtensions: ['.ap17', '.ap18', '.scl'],
+          icon: 'siemens'
+        },
+        {
+          id: 'codesys',
+          name: 'CODESYS Project',
+          description: 'Import from CODESYS project files',
+          supportedExtensions: ['.pro', '.st', '.exp'],
+          icon: 'codesys'
+        },
+        {
+          id: 'generic-st',
+          name: 'Generic ST Files',
+          description: 'Import individual Structured Text files',
+          supportedExtensions: ['.st', '.txt', '.prg', '.fnc', '.fb'],
+          icon: 'file-text'
+        }
+      ];
+
+      const response = {
+        success: true,
+        data: templates,
+        message: 'Import templates retrieved successfully',
+      };
+
+      res.json(response);
+    } catch (error) {
+      logger.error('Failed to get import templates:', error);
+      throw createError('Failed to get import templates', 500);
     }
   };
 }

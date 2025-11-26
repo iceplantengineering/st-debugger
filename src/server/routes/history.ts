@@ -5,10 +5,10 @@ import { asyncHandler } from '../middleware/errorHandler';
 const router = Router();
 const historyController = new HistoryController();
 
-// History tracking endpoints
-router.get('/projects/:id/timeline', asyncHandler(historyController.getProjectTimeline.bind(historyController)));
-router.get('/projects/:id/variables/:name/history', asyncHandler(historyController.getVariableHistory.bind(historyController)));
-router.get('/projects/:id/files/:fileId/history', asyncHandler(historyController.getFileChangeHistory.bind(historyController)));
-router.post('/projects/:id/activity', asyncHandler(historyController.recordActivity.bind(historyController)));
+// History endpoints
+router.get('/project/:projectId', asyncHandler(historyController.getProjectHistory.bind(historyController)));
+router.post('/project/:projectId', asyncHandler(historyController.addHistoryEntry.bind(historyController)));
+router.get('/session/:sessionId', asyncHandler(historyController.getSessionHistory.bind(historyController)));
+router.delete('/project/:projectId', asyncHandler(historyController.clearProjectHistory.bind(historyController)));
 
 export default router;

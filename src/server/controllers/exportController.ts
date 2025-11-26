@@ -3,57 +3,133 @@ import { createError } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
 
 export class ExportController {
-  // GET /api/export/projects/:id
+  // POST /api/export/project
   exportProject = async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.params;
-    const { format = 'zip', includeSource = true, includeMetadata = true } = req.query;
+    const { projectId, format, options } = req.body;
+
+    if (!projectId || !format) {
+      throw createError('Project ID and format are required', 400);
+    }
 
     try {
-      // Mock ZIP package generation
-      const mockZipContent = Buffer.from('Mock ZIP content for project export');
+      // Mock implementation - would generate actual export
+      const exportData = {
+        projectId,
+        format,
+        exportedAt: new Date(),
+        files: [],
+        metadata: {
+          version: '1.0.0',
+          exportedBy: 'system',
+          includeSource: options?.includeSource || true,
+          includeMetadata: options?.includeMetadata || false,
+        }
+      };
 
-      res.setHeader('Content-Type', 'application/zip');
-      res.setHeader('Content-Disposition', `attachment; filename="project_${id}_export.zip"`);
-      res.setHeader('Content-Length', mockZipContent.length);
+      const response = {
+        success: true,
+        data: exportData,
+        message: 'Project exported successfully',
+      };
 
-      res.send(mockZipContent);
+      logger.info(`Exported project ${projectId} as ${format}`);
+      res.json(response);
     } catch (error) {
       logger.error('Project export failed:', error);
-      throw createError('Export failed', 500);
+      throw createError('Project export failed', 500);
     }
   };
 
-  // GET /api/export/projects/:id/versions/:versionId
-  exportVersion = async (req: Request, res: Response): Promise<void> => {
-    const { id, versionId } = req.params;
+  // POST /api/export/files
+  exportFiles = async (req: Request, res: Response): Promise<void> => {
+    const { fileIds, format, options } = req.body;
+
+    if (!fileIds || !Array.isArray(fileIds) || !format) {
+      throw createError('File IDs array and format are required', 400);
+    }
 
     try {
-      // Mock version export
-      const mockVersionZip = Buffer.from(`Mock version ${versionId} export for project ${id}`);
+      // Mock implementation
+      const exportedFiles = fileIds.map((id: string, index: number) => ({
+        id,
+        name: `File${index + 1}`,
+        format,
+        exportedAt: new Date(),
+        size: Math.floor(Math.random() * 10000) + 1000
+      }));
 
-      res.setHeader('Content-Type', 'application/zip');
-      res.setHeader('Content-Disposition', `attachment; filename="project_${id}_v${versionId}.zip"`);
-      res.send(mockVersionZip);
+      const response = {
+        success: true,
+        data: {
+          files: exportedFiles,
+          format,
+          totalSize: exportedFiles.reduce((sum: number, file: any) => sum + file.size, 0),
+          exportedAt: new Date()
+        },
+        message: `${exportedFiles.length} files exported successfully`,
+      };
+
+      logger.info(`Exported ${exportedFiles.length} files as ${format}`);
+      res.json(response);
     } catch (error) {
-      logger.error('Version export failed:', error);
-      throw createError('Version export failed', 500);
+      logger.error('Files export failed:', error);
+      throw createError('Files export failed', 500);
     }
   };
 
-  // GET /api/export/projects/:id/diff/:fromVersion/:toVersion
-  exportDiff = async (req: Request, res: Response): Promise<void> => {
-    const { id, fromVersion, toVersion } = req.params;
-
+  // GET /api/export/formats
+  getExportFormats = async (req: Request, res: Response): Promise<void> => {
     try {
-      // Mock diff export
-      const mockDiff = Buffer.from(`Mock diff between v${fromVersion} and v${toVersion} for project ${id}`);
+      // Mock implementation - return available export formats
+      const formats = [
+        {
+          id: 'zip',
+          name: 'ZIP Archive',
+          description: 'Compressed archive with all project files',
+          extension: '.zip',
+          mimeType: 'application/zip',
+          supportsMetadata: true,
+          supportsSource: true
+        },
+        {
+          id: 'project',
+          name: 'Project File',
+          description: 'Native project format with metadata',
+          extension: '.stproj',
+          mimeType: 'application/json',
+          supportsMetadata: true,
+          supportsSource: true
+        },
+        {
+          id: 'diff',
+          name: 'Diff Report',
+          description: 'Code changes and differences report',
+          extension: '.diff',
+          mimeType: 'text/plain',
+          supportsMetadata: true,
+          supportsSource: false
+        },
+        {
+          id: 'pdf',
+          name: 'PDF Documentation',
+          description: 'Formatted documentation and code listing',
+          extension: '.pdf',
+          mimeType: 'application/pdf',
+          supportsMetadata: true,
+          supportsSource: true
+        }
+      ];
 
-      res.setHeader('Content-Type', 'text/plain');
-      res.setHeader('Content-Disposition', `attachment; filename="project_${id}_diff_${fromVersion}_to_${toVersion}.diff"`);
-      res.send(mockDiff);
+      const response = {
+        success: true,
+        data: formats,
+        message: 'Export formats retrieved successfully',
+      };
+
+      res.json(response);
     } catch (error) {
-      logger.error('Diff export failed:', error);
-      throw createError('Diff export failed', 500);
+      logger.error('Failed to get export formats:', error);
+      throw createError('Failed to get export formats', 500);
     }
   };
 }

@@ -5,11 +5,13 @@ import { asyncHandler } from '../middleware/errorHandler';
 const router = Router();
 const aiController = new AIController();
 
-// AI service endpoints
-router.post('/analyze-code', asyncHandler(aiController.analyzeCode.bind(aiController)));
-router.post('/generate-fixes', asyncHandler(aiController.generateFixes.bind(aiController)));
-router.post('/optimize-code', asyncHandler(aiController.optimizeCode.bind(aiController)));
+// AI analysis endpoints
+router.post('/analyze', asyncHandler(aiController.analyzeCode.bind(aiController)));
+router.post('/fix-suggestions', asyncHandler(aiController.getFixSuggestions.bind(aiController)));
+router.post('/optimize', asyncHandler(aiController.optimizeCode.bind(aiController)));
 router.post('/generate-tests', asyncHandler(aiController.generateTests.bind(aiController)));
-router.post('/chat', asyncHandler(aiController.chat.bind(aiController)));
+
+// AI chat/conversation endpoints
+router.post('/chat', asyncHandler(aiController.chatWithAI.bind(aiController)));
 
 export default router;

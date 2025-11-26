@@ -6,8 +6,8 @@ const router = Router();
 const exportController = new ExportController();
 
 // Export endpoints
-router.get('/projects/:id', asyncHandler(exportController.exportProject.bind(exportController)));
-router.get('/projects/:id/versions/:versionId', asyncHandler(exportController.exportVersion.bind(exportController)));
-router.get('/projects/:id/diff/:fromVersion/:toVersion', asyncHandler(exportController.exportDiff.bind(exportController)));
+router.post('/project', asyncHandler(exportController.exportProject.bind(exportController)));
+router.post('/files', asyncHandler(exportController.exportFiles.bind(exportController)));
+router.get('/formats', asyncHandler(exportController.getExportFormats.bind(exportController)));
 
 export default router;
