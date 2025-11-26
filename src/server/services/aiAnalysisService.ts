@@ -4,13 +4,13 @@ import { AI_PROMPTS } from '../../shared/constants';
 import { logger } from '../utils/logger';
 
 export class AIAnalysisService {
-  private openai: OpenAI;
+  private openai?: OpenAI;
   private isDemoMode: boolean;
 
   constructor() {
-    this.isDemoMode = process.env.DEMO_MODE === 'true';
+    this.isDemoMode = process.env.DEMO_MODE === 'true' || !process.env.OPENAI_API_KEY;
 
-    if (!this.isDemoMode) {
+    if (!this.isDemoMode && process.env.OPENAI_API_KEY) {
       this.openai = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY,
       });
@@ -52,6 +52,9 @@ export class AIAnalysisService {
     const prompt = this.buildAnalysisPrompt(pou, project);
 
     try {
+      if (!this.openai) {
+        throw new Error('OpenAI client not initialized');
+      }
       const completion = await this.openai.chat.completions.create({
         model: process.env.AI_MODEL || 'gpt-4-turbo-preview',
         messages: [
@@ -88,6 +91,9 @@ export class AIAnalysisService {
     const architecturePrompt = this.buildArchitectureAnalysisPrompt(project);
 
     try {
+      if (!this.openai) {
+        throw new Error('OpenAI client not initialized');
+      }
       const completion = await this.openai.chat.completions.create({
         model: process.env.AI_MODEL || 'gpt-4-turbo-preview',
         messages: [
@@ -125,6 +131,9 @@ export class AIAnalysisService {
     const prompt = this.buildFixPrompt(issue, pou);
 
     try {
+      if (!this.openai) {
+        throw new Error('OpenAI client not initialized');
+      }
       const completion = await this.openai.chat.completions.create({
         model: process.env.AI_MODEL || 'gpt-4-turbo-preview',
         messages: [
@@ -162,6 +171,9 @@ export class AIAnalysisService {
     const prompt = this.buildOptimizationPrompt(pou, optimizationGoals);
 
     try {
+      if (!this.openai) {
+        throw new Error('OpenAI client not initialized');
+      }
       const completion = await this.openai.chat.completions.create({
         model: process.env.AI_MODEL || 'gpt-4-turbo-preview',
         messages: [
@@ -211,6 +223,9 @@ export class AIAnalysisService {
     const prompt = this.buildTestCasePrompt(pou);
 
     try {
+      if (!this.openai) {
+        throw new Error('OpenAI client not initialized');
+      }
       const completion = await this.openai.chat.completions.create({
         model: process.env.AI_MODEL || 'gpt-4-turbo-preview',
         messages: [
