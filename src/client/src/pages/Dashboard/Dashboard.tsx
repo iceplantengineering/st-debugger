@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Search, Filter, MoreVertical, Clock, AlertTriangle, CheckCircle, FolderOpen, Brain, Upload, Trash2 } from 'lucide-react';
+import ExportButton from '../../components/ExportButton/ExportButton';
 
 interface Project {
   id: string;
@@ -549,33 +550,7 @@ const Dashboard: React.FC = () => {
                               <span>{project.score}% score</span>
                             </div>
                           </div>
-                          <button
-                            onClick={() => handleDeleteProject(project.id, project.name)}
-                            style={{
-                              padding: '0.25rem 0.5rem',
-                              color: '#dc2626',
-                              backgroundColor: 'transparent',
-                              border: '1px solid #dc2626',
-                              borderRadius: '0.25rem',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.25rem',
-                              fontSize: '0.75rem'
-                            }}
-                            title="Delete project"
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#dc2626';
-                              e.currentTarget.style.color = 'white';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'transparent';
-                              e.currentTarget.style.color = '#dc2626';
-                            }}
-                          >
-                            <Trash2 size={14} />
-                            <span>Delete</span>
-                          </button>
+<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>                            <ExportButton projectId={project.id} projectName={project.name} />                            <button                              onClick={() => handleDeleteProject(project.id, project.name)}                              style={{                                padding: '0.25rem 0.5rem',                                color: '#dc2626',                                backgroundColor: 'transparent',                                border: '1px solid #dc2626',                                borderRadius: '0.25rem',                                cursor: 'pointer',                                display: 'flex',                                alignItems: 'center',                                gap: '0.25rem',                                fontSize: '0.75rem'                              }}                              title="Delete project"                              onMouseEnter={(e) => {                                e.currentTarget.style.backgroundColor = '#dc2626';                                e.currentTarget.style.color = 'white';                              }}                              onMouseLeave={(e) => {                                e.currentTarget.style.backgroundColor = 'transparent';                                e.currentTarget.style.color = '#dc2626';                              }}                            >                              <Trash2 size={14} />                              <span>Delete</span>                            </button>                          </div>
                         </div>
                       </div>
                     ))}
